@@ -16,7 +16,7 @@ def load_config():
     return {
         "model_name": os.getenv("MODEL_NAME"),
         "max_tokens": int(os.getenv("MAX_TOKENS")),
-        "system_prompt": os.getenv("SYSTEM"),
+        "system_prompt": os.getenv("SYSTEM_PROMPT"),
     }
 
 def create_client():
