@@ -5,7 +5,7 @@ All configuration logic is loaded via a .env file, allowing for user customizati
 import os
 import anthropic
 from dotenv import load_dotenv
-from src import database
+import database
 import time
 
 def load_config():
@@ -82,13 +82,18 @@ def run_chat_bot():
     
     config = load_config()
     client = create_client()
-    history = []
     
     #Database integration calls
     database.init_db()
     first_name, last_name = get_user_name()
-    user_id = database.insert_users(first_name, last_name)
+    
+    user_id = database.find_users(first_name, last_name)                            
+    if user_id is None:                                                             
+        user_id = database.insert_users(first_name, last_name) 
+    
     session_id = database.insert_sessions(user_id, config["model_name"])
+    
+    history = database.get_prior_history(user_id)
     
     print("\nChatbot ready. Type 'quit' or 'exit' to end session.\n")
 
