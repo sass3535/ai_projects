@@ -5,34 +5,31 @@ All configuration logic is loaded via a .env file, allowing for user customizati
 import os
 import anthropic
 from dotenv import load_dotenv
+<<<<<<< HEAD
 import database
 import time
+=======
+
+>>>>>>> 8cad3eb8fbcaa97f85d6630fb41f9f6dc7dd1be3
 
 def load_config():
     
     """Load and return configuration values from .env file."""
     
     load_dotenv()
+    
     return {
         "model_name": os.getenv("MODEL_NAME"),
         "max_tokens": int(os.getenv("MAX_TOKENS")),
-        "system_prompt": os.getenv("SYSTEM_PROMPT"),
+        "system_prompt": os.getenv("SYSTEM"),
     }
 
 def create_client():
     
     """Create and return an authenticated Anthropic client."""
-
+    
     return anthropic.Anthropic()
 
-def get_user_name():
-    
-    """Captures user first and last name for DB storage."""
-    
-    print("Hello! Please enter First and Last Name to begin session.\n")
-    first_name = input("First Name: ")
-    last_name = input("Last Name: ")
-    return first_name, last_name
 
 def get_user_input():
     
@@ -46,9 +43,7 @@ def get_user_input():
 
 def receive_response(client: anthropic.Anthropic, config: dict, history: list):
     
-    """Stream a response from the Anthropic API."""
-    #Capture start of message
-    start_time = time.perf_counter()
+    """Send conversation history to the API and return the reply text."""
     
     with client.messages.stream(
         model=config["model_name"],
@@ -60,28 +55,16 @@ def receive_response(client: anthropic.Anthropic, config: dict, history: list):
         for text in stream.text_stream:
             print(text, end="", flush=True)
         print("\n")
-        final_message = stream.get_final_message()
-        
-        #Capture time of message stream
-        end_time = time.perf_counter()
-        
-        #Capture tokens and reply assign to variables
-        reply = final_message.content[0].text
-        input_tokens = final_message.usage.input_tokens
-        output_tokens = final_message.usage.output_tokens
-        
-        #latency calculation
-        latency_ms = (end_time - start_time) * 1000
-        
-        #Return reply response from LLM, input tokens, output tokens, and latency of transaction
-        return (reply, input_tokens, output_tokens, latency_ms)
-    
+        return stream.get_final_message().content[0].text
+
+
 def run_chat_bot():
     
     """Run the interactive terminal chat bot loop."""
     
     config = load_config()
     client = create_client()
+<<<<<<< HEAD
     
     #Database integration calls
     database.init_db()
@@ -96,6 +79,11 @@ def run_chat_bot():
     history = database.get_prior_history(user_id)
     
     print("\nChatbot ready. Type 'quit' or 'exit' to end session.\n")
+=======
+    history = []
+
+    print("Chatbot ready. Type 'quit' to exit.\n")
+>>>>>>> 8cad3eb8fbcaa97f85d6630fb41f9f6dc7dd1be3
 
     while True:
         user_input = get_user_input()
@@ -103,15 +91,11 @@ def run_chat_bot():
             break
         if not user_input:
             continue
-        
+
         history.append({"role": "user", "content": user_input})
-        reply, input_tokens, output_tokens, latency_ms = receive_response(client, config, history)
-        
-        #Store into databases
-        message_id = database.insert_messages(session_id, user_input, input_tokens)
-        database.insert_responses(message_id, reply, output_tokens, latency_ms)
-        
+        reply = receive_response(client, config, history)
         history.append({"role": "assistant", "content": reply})
+
 
 if __name__ == "__main__":
     run_chat_bot()
