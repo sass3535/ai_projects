@@ -122,8 +122,8 @@ def get_prior_history(user_id):
             history.append({"role": "assistant", "content": row[1]})
         return history
 
-# Test block for functions above
-# if __name__ == "__main__":
+## Test block for functions above
+## if __name__ == "__main__":
 #     init_db()                                
 #     user_id = insert_users("Matt", "Sassoon")
 #     session_id = insert_sessions(user_id,"claude-opus-4-6")
