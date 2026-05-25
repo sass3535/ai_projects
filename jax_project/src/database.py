@@ -1,5 +1,5 @@
 """
-    Databse instance created for historical context persistance
+    Database instance created for historical context persistance
     for chatbot
 """
 import sqlite3
